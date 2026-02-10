@@ -9,7 +9,8 @@ from constants import (
     PLAYER_SHOOT_SPEED,
     PLAYER_SHOOT_COOLDOWN_SECOND,
     PLAYER_ACCELERATION,
-    PLAYER_DRAG
+    PLAYER_DRAG,
+    INVULNERABILITY_TIME,
 )
 
 
@@ -18,6 +19,7 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.timer = 0
+        self.invulnerable_timer = INVULNERABILITY_TIME
 
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -28,6 +30,9 @@ class Player(CircleShape):
         return [a, b, c]
 
     def draw(self, screen):
+        # blink if invulnerable
+        if self.invulnerable_timer > 0 and int(self.invulnerable_timer * 10) % 2 == 0:
+            return
         pygame.draw.polygon(screen, "green", self.triangle())
         pygame.draw.polygon(screen, "white", self.triangle(), LINE_WIDTH)
 
@@ -36,7 +41,9 @@ class Player(CircleShape):
 
     def update(self, dt):
         self.timer -= dt
+        self.invulnerable_timer -= dt
 
+        super().update(dt)  # wrapping
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             self.rotate(-dt)
@@ -63,4 +70,4 @@ class Player(CircleShape):
             return
         self.timer = PLAYER_SHOOT_COOLDOWN_SECOND
         shot = Shot(self.position.x, self.position.y)
-        shot.velocity = pygame.Vector2(0,1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
