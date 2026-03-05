@@ -1,129 +1,121 @@
 ![Gif asteroids demo](./demo/demo.gif)
 
-# Asteroids
+# Arcade
 
-A pygame implementation of the classic Asteroids arcade game.
+A retro arcade collection built with pygame. Five classic games in a single launcher with a warm CRT aesthetic, persistent high scores, and multiple modes per game.
 
 ---
 
-## Recent Updates
+## Games
 
-- Score system with HUD display and high scores
-- Lives mechanic with invulnerability frames
-- Screen wrapping for seamless gameplay
-- Game state management (Menu → Play → Game Over → Restart)
-- Player Inertia & Acceleration
+| Game | Modes |
+|---|---|
+| Asteroids | Classic, Survival, Hardcore, Zen |
+| Snake | Classic, Wrap, Speed Run |
+| Tetris | Marathon, Sprint, Ultra |
+| Pong | VS Player, VS CPU (Easy / Medium / Hard) |
+| Breakout | Classic, Endless |
 
 ---
 
 ## Running
 
-With uv installed:
+### Most platforms (Linux, macOS, Windows)
+
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
 ```bash
-uv venv
-source .venv/bin/activate
+uv sync
+uv run main.py
+```
+
+### Without uv (pip)
+
+Python 3.13+ and pip required:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install pygame==2.6.1
+python main.py
+```
+
+### NixOS
+
+I have found on NixOS PyPI pygame wheel can't find zlib because Nix store paths aren't on
+`LD_LIBRARY_PATH` by default. `shell.nix` fixes this — it exposes zlib so the wheel
+works normally, then `uv run` takes over as usual:
+
+```bash
+nix-shell
+uv sync
 uv run main.py
 ```
 
 ---
 
-## Player Controls
-- Movement Controls
-  - **W** = thrust forward
-  - **S** = thrust backward
-  - **A** = turn left
-  - **D** = turn right
-  - **Space** = shoot
+## Launcher Controls
+
+| Key | Action |
+|---|---|
+| Up / Down | Navigate menu |
+| Enter | Select |
+| Q | Quit |
+| Escape | Back one level |
+| F3 | Toggle FPS counter |
+| F4 | Toggle CRT effects |
 
 ---
 
-## Player Mechanics
+## In-Game Controls
 
-Objects seamlessly wrap around screen edges for continuous gameplay.
+### Asteroids
+| Key | Action |
+|---|---|
+| W / Up | Thrust forward |
+| S / Down | Thrust back |
+| A / Left | Rotate left |
+| D / Right | Rotate right |
+| Space | Shoot |
+| Escape / Space | Pause |
+| Q | Quit to menu |
 
-```python
-### constants.py
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720
-```
+### Snake
+| Key | Action |
+|---|---|
+| W / Up | Steer up |
+| S / Down | Steer down |
+| A / Left | Steer left |
+| D / Right | Steer right |
+| Escape / Space | Pause |
+| Q | Quit to menu |
 
-```python
-### circleshape.py
-    def update(self, dt):
-        # screen wrapping
-        from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+### Tetris
+| Key | Action |
+|---|---|
+| W / Up | Rotate |
+| S / Down | Soft drop |
+| A / Left | Move left |
+| D / Right | Move right |
+| Space | Hard drop |
+| C | Hold piece |
+| Escape / Space | Pause |
+| Q | Quit to menu |
 
-        if self.position.x > SCREEN_WIDTH + self.radius:
-            self.position.x = -self.radius
-        elif self.position.x < -self.radius:
-            self.position.x = SCREEN_WIDTH + self.radius
-        if self.position.y > SCREEN_HEIGHT + self.radius:
-            self.position.y = -self.radius
-        elif self.position.y < -self.radius:
-            self.position.y = SCREEN_HEIGHT + self.radius
-```
+### Pong
+| Key | Action |
+|---|---|
+| W / Up | Left paddle up (all modes) |
+| S / Down | Left paddle down (all modes) |
+| I | Right paddle up (vs Player only) |
+| K | Right paddle down (vs Player only) |
+| Escape / Space | Pause |
+| Q | Quit to menu |
 
-Player speeds up and slows down dynamically.
-
-```python
-### constants.py
-PLAYER_ACCELERATION = 550
-PLAYER_DRAG = 0.98
-```
-
-```python
-# player.py
-    def update(self, dt):
-        self.timer -= dt
-        self.invulnerable_timer -= dt
-
-        ...
-
-        if keys[pygame.K_w]:
-            self.accelerate(dt)
-        if keys[pygame.K_s]:
-            self.accelerate(-dt)
-
-      ...
-
-    def accelerate(self, dt):
-        unit_vector = pygame.Vector2(0, 1)
-        rotated_vector = unit_vector.rotate(self.rotation)
-        acceleration_vector = rotated_vector * PLAYER_ACCELERATION * dt
-        self.velocity += acceleration_vector
-```
-
-Shoot asteroids to destroy them.
-
-```python
-### circleshape.py
-    def collides_with(self, other):
-        distance = self.position.distance_to(other.position)
-        minimum = self.radius + other.radius
-        return distance <= minimum
-```
-
-Large asteroids split into smaller ones when hit.
-
-```python
-### asteroid.py
-    def split(self):
-        self.kill()
-
-        if self.radius <= ASTEROID_MIN_RADIUS:
-            return ASTEROID_SCORE_SMALL
-
-        log_event("asteroid_split")
-
-        angle = random.uniform(20, 50)
-        vector_1 = self.velocity.rotate(angle)
-        vector_2 = self.velocity.rotate(-angle)
-
-        new_radius = self.radius - ASTEROID_MIN_RADIUS
-
-        new_1 = Asteroid(self.position.x, self.position.y, new_radius)
-        new_1.velocity = vector_1 * 1.2
-        new_2 = Asteroid(self.position.x, self.position.y, new_radius)
-        new_2.velocity = vector_2 * 1.2
-```
+### Breakout
+| Key | Action |
+|---|---|
+| A / Left | Move paddle left |
+| D / Right | Move paddle right |
+| Space | Launch ball / pause |
+| Q | Quit to menu |
