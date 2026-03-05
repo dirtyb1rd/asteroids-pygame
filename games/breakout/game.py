@@ -257,7 +257,9 @@ class BreakoutGame(BaseGame):
 
                 # ---- PLAYING ----
                 if self._state == _ST_PLAYING:
-                    if key in (pygame.K_ESCAPE, pygame.K_SPACE) and not self._on_paddle:
+                    if key == pygame.K_ESCAPE:
+                        self._state = _ST_PAUSED
+                    elif key == pygame.K_SPACE and not self._on_paddle:
                         self._state = _ST_PAUSED
                     elif key == pygame.K_SPACE and self._on_paddle:
                         self._on_paddle = False

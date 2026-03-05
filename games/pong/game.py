@@ -299,8 +299,14 @@ class PongGame(BaseGame):
         relative = (self._ball_y - paddle.centery) / (PADDLE_HEIGHT / 2)
         relative = max(-1.0, min(1.0, relative))
 
-        # Steeper angle near edge — max 70°
-        bounce_angle = relative * math.radians(70)
+        # Angle: min 15° near center, max 60° at edge — prevents flat back-and-forth
+        _MIN_ANGLE = math.radians(15)
+        _MAX_ANGLE = math.radians(60)
+        bounce_angle = relative * _MAX_ANGLE
+        if bounce_angle >= 0:
+            bounce_angle = max(bounce_angle, _MIN_ANGLE)
+        else:
+            bounce_angle = min(bounce_angle, -_MIN_ANGLE)
 
         # Increase speed, cap at max
         self._ball_speed = min(self._ball_speed + BALL_SPEEDUP, BALL_MAX_SPEED)

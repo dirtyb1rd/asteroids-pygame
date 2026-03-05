@@ -4,11 +4,11 @@ PADDLE_SPEED  = 420
 PADDLE_MARGIN = 50    # distance from edge
 
 BALL_RADIUS   = 8
-BALL_SPEED    = 380   # initial speed
-BALL_MAX_SPEED = 700
+BALL_SPEED    = 520   # initial speed
+BALL_MAX_SPEED = 850
 BALL_SPEEDUP  = 18    # added to speed per paddle hit
 
-WIN_SCORE     = 11
+WIN_SCORE     = 5
 
 # AI difficulty settings (reaction delay in seconds + position error in pixels)
 AI_EASY   = {"delay": 0.4, "error": 60}
